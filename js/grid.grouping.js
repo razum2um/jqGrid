@@ -141,7 +141,7 @@ $.jgrid.extend({
 		return this.each(function(){
 			var $t = this,
 			grp = $t.p.groupingView,
-			str = "", icon = "", hid, pmrtl = grp.groupCollapse ? grp.plusicon : grp.minusicon, gv, cp, ii;
+			str = "", icon = "", hid, onclick, cellstr, grouperClass, pmrtl = grp.groupCollapse ? grp.plusicon : grp.minusicon, gv, cp, ii;
 			//only one level for now
 			if(!grp.groupDataSorted) {
 				// ???? TO BE IMPROVED
@@ -164,13 +164,25 @@ $.jgrid.extend({
 			}
 			$.each(grp.sortitems[0],function(i,n){
 				hid = $t.p.id+"ghead_"+i;
-				icon = "<span style='cursor:pointer;' class='ui-icon "+pmrtl+"' onclick=\"jQuery('#"+$.jgrid.jqID($t.p.id)+"').jqGrid('groupingToggle','"+hid+"');return false;\"></span>";
+				onclick = "jQuery('#"+$.jgrid.jqID($t.p.id)+"').jqGrid('groupingToggle','"+hid+"');return false;"
+				icon = "<span style='cursor:pointer;' class='ui-icon "+pmrtl+"' onclick=\""+onclick+"\"></span>";
 				try {
+					var fmatter = 'grouper';
+					if ($t.p.groupingView.grouperFormatter != undefined) {
+						if($.isFunction( ts.p.groupingView.grouperFormatter ) ) {
+							fmatter = ts.p.groupingView.grouperFormatter.call(ts,cellval,opts,rwdat,_act);
+						} else if($.fmatter){
+							fmatter = $.fn.fmatter.call(ts,ts.p.groupingView.grouperFormatter,cellval,opts,rwdat,_act);
+						}
+					}
 					gv = $t.formatter(hid, grp.sortnames[0][i], cp, grp.sortitems[0] );
+					grouperClass = $t.p.groupingView.grouperClass != undefined ? $t.p.groupingView.grouperClass : 'ui-jqgrid-grouper';
+					cellstr = "<a class=\""+grouperClass+"\""+" onclick=\""+onclick+"\" "+" href=\"javascript:void(0)\">" + $.jgrid.format(grp.groupText[0], gv, grdata[n].length) + "</a>";
 				} catch (egv) {
 					gv = grp.sortnames[0][i];
+				cellstr = $.jgrid.format(grp.groupText[0], gv, grdata[n].length);
 				}
-				str += "<tr id=\""+hid+"\" role=\"row\" class= \"ui-widget-content jqgroup ui-row-"+$t.p.direction+"\"><td colspan=\""+colspans+"\">"+icon+$.jgrid.format(grp.groupText[0], gv, grdata[n].length)+"</td></tr>";
+				str += "<tr id=\""+hid+"\" role=\"row\" class= \"ui-widget-content jqgroup ui-row-"+$t.p.direction+"\"><td colspan=\""+colspans+"\">"+icon+cellstr+"</td></tr>";
 				for(var kk=0;kk<grdata[n].length;kk++) {
 					str += grdata[n][kk].join('');
 				}
