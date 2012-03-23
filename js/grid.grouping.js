@@ -89,40 +89,47 @@ $.jgrid.extend({
 			uid = hid.substring(0,strpos+1),
 			num = parseInt(hid.substring(strpos+1),10)+1,
 			minus = grp.minusicon,
-			plus = grp.plusicon,
-			tar = $("#"+$.jgrid.jqID(hid)),
-			r = tar.length ? tar[0].nextSibling : null,
-			tarspan = $("#"+$.jgrid.jqID(hid)+" span."+"tree-wrap-"+$t.p.direction),
-			collapsed = false;
-			if( tarspan.hasClass(minus) ) {
-				if(grp.showSummaryOnHide && grp.groupSummary[0]) {
-					if(r){
-						while(r) {
-							if($(r).hasClass('jqfoot') ) { break; }
-							$(r).hide();
-							r = r.nextSibling;
+			plus = grp.plusicon;
+			var hideInsideTar = function(tar) {
+				var r = tar.length ? tar[0].nextSibling : null,
+				tarspan = tar.find("span."+"tree-wrap-"+$t.p.direction),
+				collapsed = false;
+				if( tarspan.hasClass(minus) ) {
+					if(grp.showSummaryOnHide && grp.groupSummary[0]) {
+						if(r){
+							while(r) {
+								if($(r).hasClass('jqfoot') ) { break; }
+								$(r).hide();
+								r = r.nextSibling;
+							}
+						}
+					} else  {
+						if(r){
+							while(r) {
+								if($(r).attr('id') ==uid+String(num) ) { break; }
+								$(r).hide();
+								r = r.nextSibling;
+							}
 						}
 					}
-				} else  {
+					tarspan.removeClass(minus).addClass(plus);
+					collapsed = true;
+				} else {
 					if(r){
 						while(r) {
 							if($(r).attr('id') ==uid+String(num) ) { break; }
-							$(r).hide();
+							$(r).show();
 							r = r.nextSibling;
 						}
 					}
+					tarspan.removeClass(plus).addClass(minus);
 				}
-				tarspan.removeClass(minus).addClass(plus);
-				collapsed = true;
-			} else {
-				if(r){
-					while(r) {
-						if($(r).attr('id') ==uid+String(num) ) { break; }
-						$(r).show();
-						r = r.nextSibling;
-					}
-				}
-				tarspan.removeClass(plus).addClass(minus);
+			};
+			var tar = $("#"+$.jgrid.jqID(hid));
+			hideInsideTar(tar);
+			if($t.p.frozenColumns === true) {
+				var tar = $("#"+$.jgrid.jqID(hid), '.frozen-bdiv')
+				hideInsideTar(tar);
 			}
 			$($t).triggerHandler("jqGridGroupingClickGroup", [hid , collapsed]);
 			if( $.isFunction($t.p.onClickGroup)) { $t.p.onClickGroup.call($t, hid , collapsed); }

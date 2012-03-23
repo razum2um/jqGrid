@@ -620,7 +620,7 @@ $.jgrid.extend({
 			if ( !this.grid ) {return;}
 			var $t = this, cm = $t.p.colModel,i=0, len = cm.length, maxfrozen = -1, frozen= false;
 			// TODO treeGrid and grouping  Support
-			if($t.p.subGrid === true || $t.p.treeGrid === true || $t.p.cellEdit === true || $t.p.sortable || $t.p.scroll || $t.p.grouping )
+			if($t.p.subGrid === true || $t.p.treeGrid === true || $t.p.cellEdit === true || $t.p.sortable || $t.p.scroll )
 			{
 				return;
 			}
@@ -727,6 +727,14 @@ $.jgrid.extend({
 					var btbl = $("#"+$.jgrid.jqID($t.p.id)).clone(true);
 					$("tr",btbl).each(function(){
 						$("td:gt("+maxfrozen+")",this).remove();
+						$("td", this).each(function(){
+							if ($(this).attr('colspan')) {
+								var colspan = maxfrozen;
+								if($t.p.rownumbers) { colspan++; }
+								if($t.p.multiselect) { colspan++; }
+								$(this).attr('colspan', colspan).css('border-right-width', '0');
+							}
+						});
 					});
 
 					$(btbl).width(1).attr("id",$t.p.id+"_frozen");
@@ -737,8 +745,8 @@ $.jgrid.extend({
 							function(){ $(this).removeClass("ui-state-hover"); $("#"+$.jgrid.jqID(this.id), "#"+$.jgrid.jqID($t.p.id)).removeClass("ui-state-hover"); }
 						);
 						$("tr.jqgrow", "#"+$.jgrid.jqID($t.p.id)).hover(
-							function(){ $(this).addClass("ui-state-hover"); $("#"+$.jgrid.jqID(this.id), "#"+$.jgrid.jqID($t.p.id)+"_frozen").addClass("ui-state-hover");},
-							function(){ $(this).removeClass("ui-state-hover"); $("#"+$.jgrid.jqID(this.id), "#"+$.jgrid.jqID($t.p.id)+"_frozen").removeClass("ui-state-hover"); }
+							function(){ $(this).addClass("ui-state-hover"); $("#"+$.jgrid.jqID(this.id), "#"+$.jgrid.jqID($t.p.id)+"_frozen").addClass("ui-state-hover"); },
+							function(){ $(this).removeClass("ui-state-hover"); $("#"+$.jgrid.jqID(this.id)+", #"+$.jgrid.jqID($t.p.id)+"_frozen").removeClass("ui-state-hover"); }
 						);
 					}
 					btbl=null;
